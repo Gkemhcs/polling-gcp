@@ -30,11 +30,16 @@ cd init-database
 npm i @google-cloud/datastore
 npm start
 cd ..
+echo "CREATING SERVICEACCOUNT FOR CLOUD RUN SERVICE"
+export SERVICE_ACCOUNT_NAME=datastore-user
+gcloud iam service-accounts create datastore-user --display-name datastoreuser 
+gcloud projects add-iam-policy-binding $PROJECT_ID --member "serviceAccount:${SERVICE_ACCOUNT_NAME}@${PROJECT_ID}.iam.gserviceaccount.com" --role roles/datastore.user
 echo "DEPLOYING CLOUD RUN RESOURCE "
 echo "ENTER THE RUN-SERVICE NAME"
 read RUN_NAME
 gcloud run deploy $RUN_NAME --region $REGION --image  $REGION-docker.pkg.dev/pushpavathi-143/poll-repo/poll-image \
---allow-unauthenticated
-export url=$(gcloud run services describe poll --region us-central1 --format "value(status.address.url)")
+--allow-unauthenticated \
+--service-account "${SERVICE_ACCOUNT_NAME}@${PROJECT_ID}.iam.gserviceaccount.com"
+export url=$(gcloud run services describe $RUN_NAME --region us-central1 --format "value(status.address.url)")
 echo "run service url is ${url}"
 

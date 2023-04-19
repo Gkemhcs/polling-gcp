@@ -23,6 +23,10 @@ gcloud artifacts repositories create poll-repo --location $REGION --description 
 echo "ARTIFACT REPOSITORY NAMED poll-repo CREATED IN ${REGION}"
 echo "BUILDING DOCKER IMAGE 🔄"
 cd code
+export PROJECT_NUMBER=$(gcloud projects describe ${PROJECT_ID} --format "value(projectNumber)")
+export CLOUDBUILD_SERVICE_ACCOUNT=${PROJECT_NUMBER}@cloudbuild.gserviceaccount.com
+gcloud artifacts repositories add-iam-policy-binding poll-repo --location $REGION --member "serviceAccount:${CLOUDBUILD_SERVICE_ACCOUNT}" \
+ --role roles/artifactregistry.writer
 gcloud  builds submit --pack image=$REGION-docker.pkg.dev/pushpavathi-143/poll-repo/poll-image
 echo "image successfully built"
 echo "here we have to initialise the database and count with 0"

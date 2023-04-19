@@ -15,7 +15,7 @@ const entities=[
     {key:twitterKey,data:twitterData},
     {key:instagramKey,data:instagramData}
 ]
-await datastore.insert(entities)
+await datastore.upsert(entities)
 console.log("successfully initialised the database")
 
 }

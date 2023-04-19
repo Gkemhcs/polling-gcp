@@ -1,6 +1,7 @@
 #! /bin/bash
 echo "WE ARE ABOUT TO START"
-echo "creating project" 
+echo "creating project"
+echo "ENTER YOUR PROJECT ID:-"
 read PROJECT_ID
 echo "enter the name you want to display for your project:-"
 read PROJECT_NAME

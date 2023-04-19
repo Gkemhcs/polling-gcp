@@ -24,13 +24,11 @@ echo "ARTIFACT REPOSITORY NAMED poll-repo CREATED IN ${REGION}"
 echo "BUILDING DOCKER IMAGE 🔄"
 cd code
 export PROJECT_NUMBER=$(gcloud projects describe ${PROJECT_ID} --format "value(projectNumber)")
-export CLOUDBUILD_SERVICE_ACCOUNT=${PROJECT_NUMBER}@cloudbuild.gserviceaccount.com
-gcloud artifacts repositories add-iam-policy-binding poll-repo --location $REGION --member "serviceAccount:${CLOUDBUILD_SERVICE_ACCOUNT}" \
- --role roles/artifactregistry.writer
-gcloud  builds submit --pack image=$REGION-docker.pkg.dev/pushpavathi-143/poll-repo/poll-image
+ 
+gcloud  builds submit --pack image=gcr.io/{$PROJECT_ID}/poll-image
 echo "image successfully built"
 echo "here we have to initialise the database and count with 0"
-cd init-database
+cd ../init-database
 npm i @google-cloud/datastore
 npm start
 cd ..
@@ -41,7 +39,7 @@ gcloud projects add-iam-policy-binding $PROJECT_ID --member "serviceAccount:${SE
 echo "DEPLOYING CLOUD RUN RESOURCE "
 echo "ENTER THE RUN-SERVICE NAME"
 read RUN_NAME
-gcloud run deploy $RUN_NAME --region $REGION --image  $REGION-docker.pkg.dev/pushpavathi-143/poll-repo/poll-image \
+gcloud run deploy $RUN_NAME --region $REGION --image  gcr.io/pushpavathi-143/poll-image \
 --allow-unauthenticated \
 --service-account "${SERVICE_ACCOUNT_NAME}@${PROJECT_ID}.iam.gserviceaccount.com"
 export url=$(gcloud run services describe $RUN_NAME --region us-central1 --format "value(status.address.url)")

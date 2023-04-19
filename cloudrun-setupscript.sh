@@ -15,7 +15,7 @@ echo "ALL THE REQUIRED SERVICES ENABLED ✅"
 echo "enter the location in which you want to deploy your datastore instance"
 echo "⚠️:-TRY TO PUT ALL YOUR  RESOURCES IN SAME LOCATION FOR BETTER LATENCY"
 read DATASTORE_LOCATION
-gcloud alpha firestore databases create --location $DATASTORE_LOCATION --type datastore-mode --database polling-database
+gcloud datastore databases create --location $DATASTORE_LOCATION 
 echo "CREATING ARTIFACT REPOSITORY FOR IMAGES"
 echo "ENTER THE CLOUD RUN REGION IN WHICH YOU WANT TO DEPLOY YOUR SERVICE"
 read REGION

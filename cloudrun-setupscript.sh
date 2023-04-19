@@ -8,9 +8,9 @@ read PROJECT_NAME
 gcloud projects create $PROJECT_ID --name $PROJECT_NAME --set-as-default
 export BILLING_ACCOUNT_ID=$(gcloud beta billing accounts  list --format "value(ACCOUNT_ID)")
 gcloud beta billing projects link $PROJECT_ID --billing-account $BILLING_ACCOUNT_ID
-SUCCESSFULLY LINKED PROJECT TO BILLING ACCOUNT ID $BILLING_ACCOUNT_ID
+echo "SUCCESSFULLY LINKED PROJECT TO BILLING ACCOUNT ID $BILLING_ACCOUNT_ID"
 echo "enabling the cloudrun,cloudbuild,artifactregistry,datastore apis"
-gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com datastore.googleapis.com
+gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com datastore.googleapis.com firestore.googleapis.com
 echo "ALL THE REQUIRED SERVICES ENABLED ✅"
 echo "enter the location in which you want to deploy your datastore instance"
 echo "⚠️:-TRY TO PUT ALL YOUR  RESOURCES IN SAME LOCATION FOR BETTER LATENCY"

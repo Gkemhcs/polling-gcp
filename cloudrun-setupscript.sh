@@ -10,7 +10,7 @@ export BILLING_ACCOUNT_ID=$(gcloud beta billing accounts  list --format "value(A
 gcloud beta billing projects link $PROJECT_ID --billing-account $BILLING_ACCOUNT_ID
 echo "SUCCESSFULLY LINKED PROJECT TO BILLING ACCOUNT ID $BILLING_ACCOUNT_ID"
 echo "enabling the cloudrun,cloudbuild,artifactregistry,datastore apis"
-gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com datastore.googleapis.com firestore.googleapis.com
+gcloud services enable run.googleapis.com cloudbuild.googleapis.com containeregistry.googleapis.com datastore.googleapis.com firestore.googleapis.com
 echo "ALL THE REQUIRED SERVICES ENABLED ✅"
 echo "enter the location in which you want to deploy your datastore instance"
 echo "⚠️:-TRY TO PUT ALL YOUR  RESOURCES IN SAME LOCATION FOR BETTER LATENCY"
@@ -19,17 +19,18 @@ gcloud alpha firestore databases create --location $DATASTORE_LOCATION --type da
 echo "CREATING ARTIFACT REPOSITORY FOR IMAGES"
 echo "ENTER THE CLOUD RUN REGION IN WHICH YOU WANT TO DEPLOY YOUR SERVICE"
 read REGION
-gcloud artifacts repositories create poll-repo --location $REGION --description "polling image" --repository-format docker --labels=image=poll,deploy=run
-echo "ARTIFACT REPOSITORY NAMED poll-repo CREATED IN ${REGION}"
+
 echo "BUILDING DOCKER IMAGE 🔄"
 cd code
 export PROJECT_NUMBER=$(gcloud projects describe ${PROJECT_ID} --format "value(projectNumber)")
  
-gcloud  builds submit --pack image=gcr.io/{$PROJECT_ID}/poll-image
+gcloud  builds submit --pack image=gcr.io/$PROJECT_ID/poll-image --ignore-file .gcloudignore
 echo "image successfully built"
 echo "here we have to initialise the database and count with 0"
+
 cd ../init-database
 npm i @google-cloud/datastore
+echo $PROJECT_ID
 npm start
 cd ..
 echo "CREATING SERVICEACCOUNT FOR CLOUD RUN SERVICE"
@@ -39,7 +40,8 @@ gcloud projects add-iam-policy-binding $PROJECT_ID --member "serviceAccount:${SE
 echo "DEPLOYING CLOUD RUN RESOURCE "
 echo "ENTER THE RUN-SERVICE NAME"
 read RUN_NAME
-gcloud run deploy $RUN_NAME --region $REGION --image  gcr.io/pushpavathi-143/poll-image \
+gcloud run deploy $RUN_NAME --region $REGION --image  gcr.io/$PROJECT_ID/poll-image \
+--set-env-vars=PROJECT_ID=$PROJECT_ID \
 --allow-unauthenticated \
 --service-account "${SERVICE_ACCOUNT_NAME}@${PROJECT_ID}.iam.gserviceaccount.com"
 export url=$(gcloud run services describe $RUN_NAME --region us-central1 --format "value(status.address.url)")
